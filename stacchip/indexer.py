@@ -331,7 +331,11 @@ class Sentinel2Indexer(ChipIndexer):
         """
         The Scene Classification (SCL) band data for the STAC item
         """
-        scl_asset = self.item.assets["scl"] | self.item.assets["SCL"]
+
+        # Find the SCL asset in the STAC item with either "scl" or "SCL"
+        scl_asset = next((asset for key, asset in self.item.assets.items() if key.lower() == 'scl'), None)
+        if not scl_asset:
+            raise ValueError("No SCL asset found in the STAC item")
         print("Loading scl band")
         with rasterio.open(scl_asset.href) as src:
             return src.read(out_shape=(1, *self.shape), resampling=Resampling.nearest)[
