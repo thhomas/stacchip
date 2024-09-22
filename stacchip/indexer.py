@@ -97,8 +97,12 @@ class ChipIndexer:
             for asset in self.item.assets.values():
                 if key not in asset.extra_fields:
                     continue
-                if not data or data[0] < asset.extra_fields[key][0]:
-                    data = asset.extra_fields[key]
+                if key == "proj:shape":
+                    if not data or data[0] < asset.extra_fields[key][0]:
+                        data = asset.extra_fields[key]
+                else:
+                    if not data or data[0] > asset.extra_fields[key][0]:
+                        data = asset.extra_fields[key]
         if not data:
             raise ValueError("Could not determine {key} for this STAC item")
 
@@ -327,8 +331,9 @@ class Sentinel2Indexer(ChipIndexer):
         """
         The Scene Classification (SCL) band data for the STAC item
         """
+        scl_asset = self.item.assets["scl"] | self.item.assets["SCL"]
         print("Loading scl band")
-        with rasterio.open(self.item.assets["scl"].href) as src:
+        with rasterio.open(scl_asset.href) as src:
             return src.read(out_shape=(1, *self.shape), resampling=Resampling.nearest)[
                 0
             ]
