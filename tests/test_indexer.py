@@ -105,6 +105,7 @@ def test_sentinel_2_indexer():
     )
     indexer = Sentinel2Indexer(item)
     assert indexer.shape == [10980, 10980]
+    assert indexer.transform == [10, 0, 499980, 0, -10, 6400000]
     index = indexer.create_index()
     assert index.shape == (1763, 7)
     assert str(index.column("chipid")[0]) == "S2A_T20HNJ_20240311T140636_L2A-1-0"
